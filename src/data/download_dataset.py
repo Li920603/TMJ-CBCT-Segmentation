@@ -16,17 +16,21 @@ API = "https://api.github.com/repos/Henryblankwu/TMJ-CBCT-Segmentation-Data/cont
 RAW = "https://raw.githubusercontent.com/Henryblankwu/TMJ-CBCT-Segmentation-Data/main"
 
 
+def _get_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "TMJ-CBCT-Segmentation"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.load(r)
+
+
 def list_patients():
-    with urllib.request.urlopen(f"{API}/TMJ-DataSet") as r:
-        items = json.load(r)
+    items = _get_json(f"{API}/TMJ-DataSet")
     return [it["name"] for it in items if it["type"] == "dir"]
 
 
 def download_patient(pid, out_dir):
     dest = os.path.join(out_dir, pid)
     os.makedirs(dest, exist_ok=True)
-    with urllib.request.urlopen(f"{API}/TMJ-DataSet/{pid}") as r:
-        items = json.load(r)
+    items = _get_json(f"{API}/TMJ-DataSet/{pid}")
     for it in items:
         if it["type"] != "file":
             continue

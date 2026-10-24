@@ -95,6 +95,12 @@ def process_case(image_path, label_path, out_image_path, out_label_path, cfg):
     img = np.asanyarray(img_nii.dataobj).astype(np.float32)
     lab = (np.asanyarray(lab_nii.dataobj) > 0).astype(np.uint8)  # 二值化：>0 即为关节
 
+    # 真实数据中影像与标注的原始形状/重采样取整可能不一致，统一裁到公共形状
+    if img.shape != lab.shape:
+        common = tuple(min(a, b) for a, b in zip(img.shape, lab.shape))
+        sl = tuple(slice(0, s) for s in common)
+        img, lab = img[sl], lab[sl]
+
     img = normalize_intensity(img, cfg.clip_range)
 
     lo, hi = bbox_from_mask(lab, margin=cfg.roi_margin)

@@ -4,6 +4,7 @@
 CPU 上约 5~8 分钟跑完。真实训练前请务必先跑通此脚本。
 
 用法:  python scripts/run_smoke_test.py
+可通过环境变量 SMOKE_DIR / SMOKE_OUT 指定数据与输出目录。
 """
 
 import os
@@ -28,8 +29,8 @@ import nibabel as nib
 def main():
     # 小型化配置：小模型 + 小 patch + 少 epoch，确保 CPU 也能快速跑通
     cfg = replace(CFG,
-                  proc_dir="data/smoke",
-                  out_dir="outputs/smoke",
+                  proc_dir=os.environ.get("SMOKE_DIR", "data/smoke"),
+                  out_dir=os.environ.get("SMOKE_OUT", "outputs/smoke"),
                   base_features=8,
                   num_levels=3,
                   norm="batch",
@@ -43,9 +44,12 @@ def main():
                   amp=False)
 
     print("=" * 50)
-    print("步骤 1/4：生成合成数据")
+    print("步骤 1/4：生成合成数据（若已存在则复用）")
     print("=" * 50)
-    generate_synthetic_dataset(cfg.proc_dir, n_cases=6, shape=(96, 96, 96))
+    if not os.path.isdir(cfg.proc_dir) or not os.listdir(cfg.proc_dir):
+        generate_synthetic_dataset(cfg.proc_dir, n_cases=6, shape=(96, 96, 96))
+    else:
+        print(f"复用已有数据: {cfg.proc_dir}")
 
     print("\n" + "=" * 50)
     print("步骤 2/4：训练（冒烟：20 epoch 小模型）")
