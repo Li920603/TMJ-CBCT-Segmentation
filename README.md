@@ -31,8 +31,11 @@
 │   ├── postprocess.py       # 最大连通域后处理
 │   ├── train.py             # 训练入口
 │   ├── infer.py             # 滑动窗口推理
+│   ├── evaluate.py          # 测试集批量评估（CSV/JSON 汇总）
+│   ├── predict.py           # 单例预测（掩膜 + 可视化）
 │   └── visualize.py         # 三视图叠加对比图
 ├── scripts/run_smoke_test.py   # 冒烟测试（合成数据全链路自检）
+├── verifier/                   # 验收标准、单元检查与运行记录
 └── requirements.txt
 ```
 
@@ -55,6 +58,17 @@ python -m src.data.preprocess
 
 # 4. 训练（建议 GPU ≥12GB 显存）
 python -m src.train
+
+# 5. 测试集批量评估（输出逐例 + 均值±标准差指标、预测掩膜）
+python -m src.evaluate --ckpt outputs/best_model.pt --out outputs/test_metrics
+
+# 6. 单例预测（可选附带标注做评估与可视化）
+python -m src.predict --image data/processed/xxx_L/image.nii.gz \
+    --label data/processed/xxx_L/label.nii.gz \
+    --ckpt outputs/best_model.pt --out outputs/predictions
+
+# 代码自检（静态 + 单元测试）
+python verifier/v1/check_all.py
 ```
 
 ## 数据集
