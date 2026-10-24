@@ -58,7 +58,7 @@ def train(cfg=CFG):
                           iters_per_epoch=cfg.iters_per_epoch)
     val_ds = TMJDataset(val_s, cfg.patch_size, pos_sample_prob=1.0, augment=False)
     train_ld = DataLoader(train_ds, cfg.batch_size, shuffle=True,
-                          num_workers=cfg.num_workers, pin_memory=True)
+                          num_workers=cfg.num_workers, pin_memory=(device == "cuda"))
     val_ld = DataLoader(val_ds, 1, shuffle=False)
 
     model = build_model(cfg).to(device)

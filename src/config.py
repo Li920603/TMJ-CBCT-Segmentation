@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """全局配置：所有实验参数集中在这里管理。"""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -28,7 +28,7 @@ class Config:
     # ---------- 训练 ----------
     patch_size: tuple = (96, 96, 96)          # 训练 patch 尺寸（≤12GB 显存建议 64³）
     batch_size: int = 2
-    iters_per_epoch: int = 250                # 每轮迭代次数（patch 训练的关键：每例每轮采多个 patch）
+    iters_per_epoch: int = 250                # 每例样本每轮被随机采样的 patch 次数（patch 训练的关键参数）
     epochs: int = 200
     lr: float = 1e-4
     weight_decay: float = 1e-5

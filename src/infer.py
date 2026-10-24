@@ -65,7 +65,9 @@ def sliding_window_inference(model, image, patch_size, num_classes, overlap=0.5,
         prob_sum[(slice(None),) + sl] += probs * gw
         weight_sum[sl] += gw
 
-    pred = prob_sum.argmax(0)
+    # 按权重归一化得到逐体素类别概率（argmax 不受标量权重影响，但归一化后概率可用于输出）
+    prob = prob_sum / np.maximum(weight_sum[None], 1e-8)
+    pred = prob.argmax(0)
     # 去除 padding
     unp = [slice(0, s) for s in shape]
     return pred[tuple(unp)].astype(np.uint8)
